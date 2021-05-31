@@ -64,35 +64,24 @@ class Trie{
 
 
     getArrayofAllWords(node = this.root){
-        let wordArray = [];
+        let result = [];
 
-        function searchTrie (st, node){
-            //Base Cases
-            if(node.keyMap.length == 0){
-                if(st.length > 0){
-                    wordArray.push(st);
-                    return;
-                }else{
-                    wordArray.push(undefined);
-                    return;
-                }
-            }
-
-            if(node.isEnd()){
-                wordArray.push(st);
-            }
-
-
-            //Work & Recursive Calls
-            let keys = Object.keys(node.keyMap);
-            for(let key of keys){
-                searchTrie(st + key, node.keyMap[key]);
-            }
-
-            return;
+        //Base Case
+        let keys = Object.keys(node.keyMap);
+        if(keys.length == 0 || node.isEnd()){
+            result.push([]);
         }
-        searchTrie('', node);
-        return wordArray;
+
+        //Recursive Calls & Working Logic
+        for(let key of keys){
+            let recursiveResults = this.getArrayofAllWords(node.keyMap[key]);
+            recursiveResults = recursiveResults.map(item => key + item);
+            result.push(...recursiveResults);
+        }
+
+
+        //Return
+        return result;
 
     }
 
