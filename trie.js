@@ -79,7 +79,6 @@ class Trie{
             result.push(...recursiveResults);
         }
 
-
         //Return
         return result;
 
