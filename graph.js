@@ -148,28 +148,74 @@ class GraphAdjMatrix{
         return connectedComponents;
 
     }
+
+
+    bfsShortestPathIgnoreWeights(startNode, endNode){
+        let parents = new Array(this.adjMatrix.length).fill(null);
+        let visitedNodes = new Array(this.adjMatrix.length).fill(null);
+
+        let queue = new Array();
+
+        visitedNodes[startNode] = true;
+        queue.push(startNode);
+
+
+        while(queue.length > 0){
+            let curNode = queue.shift();
+            let edgeList = this.adjMatrix[curNode];
+
+            for(let i = 0; i < edgeList.length; i++){
+                if(edgeList[i] != null && visitedNodes[i] != true){
+                    //Edge to not visited node
+                    visitedNodes[i] = true;
+                    parents[i] = curNode;
+                    queue.push(i);
+                }
+            }
+
+        }
+
+        let path = [];
+
+
+        if(parents[endNode] != null){
+
+            let index = endNode;
+            while(index != null){
+                path.unshift(index);
+                index = parents[index];
+            }
+        }
+        return path;
+
+
+
+    }
 }
 
 /**
  *  8
  *           7 ------ 
  *           |       |   
- *  1  ----- 2 ----- 4
- *  |        |       
+ *  1  ----- 2 ----- 4 --- 9
+ *  |        |       |
  *  3        5 ------          0---6
  * 
  * 
  */
 
-let myGraph = new GraphAdjMatrix(9);
+let myGraph = new GraphAdjMatrix(10);
 
 myGraph.addBidirectionalEdge(1,2);
 myGraph.addBidirectionalEdge(1,3);
 myGraph.addBidirectionalEdge(2,5);
-//myGraph.addBidirectionalEdge(4,5);
+myGraph.addBidirectionalEdge(2,4);
+myGraph.addBidirectionalEdge(4,5);
 myGraph.addBidirectionalEdge(0,6);
 myGraph.addBidirectionalEdge(2,7);
 myGraph.addBidirectionalEdge(4,7);
+myGraph.addBidirectionalEdge(4,9);
+
 
 
 
@@ -181,3 +227,4 @@ myGraph.addBidirectionalEdge(4,7);
 //console.log(myGraph.getConnectedComponent(1));
 //console.log(myGraph.getAllConnectedComponents());
 console.log(myGraph.dfsListPaths(1));
+console.log(myGraph.bfsShortestPathIgnoreWeights(1, 9));
