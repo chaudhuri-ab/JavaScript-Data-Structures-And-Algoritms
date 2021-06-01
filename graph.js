@@ -27,8 +27,8 @@ class GraphAdjMatrix{
         this.adjMatrix[node2][node1] = weight;
     }
 
-
-    dfsListAllPaths(startNode){
+    //TODO Improve
+    dfsListPaths(startNode){
         let visitedNodes = new Array(this.adjMatrix.length).fill(false);
 
         function dfsSearch(startNode, nodesVisited, graph){
@@ -45,10 +45,10 @@ class GraphAdjMatrix{
 
             //Recurse
 
-            let result = [[]]
+            let result = []
             let edgeList = graph[startNode];
 
-            for(let node = 0; node < edgeList.length; node++){
+            for(let node = 0; node < edgeList.length; node++){                
                 if(edgeList[node] != null){
                     let recursiveResult = dfsSearch(node, nodesVisited, graph);
 
@@ -65,12 +65,18 @@ class GraphAdjMatrix{
             return result;
         }
 
-        return dfsSearch(startNode, visitedNodes, this.adjMatrix);
+
+        let results = dfsSearch(startNode, visitedNodes, this.adjMatrix).map(item => [startNode, ...item]);
+    
+        
+        
+        return results;
+        
 
     }
 
 
-    getConnectedComponent(startNode){
+     getConnectedComponent(startNode){
         let visitedNodes = new Array(this.adjMatrix.length).fill(false);
 
         function dfsSearch (startNode, nodesVisited, graph){
@@ -149,7 +155,7 @@ class GraphAdjMatrix{
  *           7 ------ 
  *           |       |   
  *  1  ----- 2 ----- 4
- *  |        |       |
+ *  |        |       
  *  3        5 ------          0---6
  * 
  * 
@@ -160,7 +166,7 @@ let myGraph = new GraphAdjMatrix(9);
 myGraph.addBidirectionalEdge(1,2);
 myGraph.addBidirectionalEdge(1,3);
 myGraph.addBidirectionalEdge(2,5);
-myGraph.addBidirectionalEdge(4,5);
+//myGraph.addBidirectionalEdge(4,5);
 myGraph.addBidirectionalEdge(0,6);
 myGraph.addBidirectionalEdge(2,7);
 myGraph.addBidirectionalEdge(4,7);
@@ -174,4 +180,4 @@ myGraph.addBidirectionalEdge(4,7);
 
 //console.log(myGraph.getConnectedComponent(1));
 //console.log(myGraph.getAllConnectedComponents());
-console.log(myGraph.dfsListAllPaths(1));
+console.log(myGraph.dfsListPaths(1));
