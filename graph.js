@@ -27,16 +27,13 @@ class GraphAdjMatrix{
         this.adjMatrix[node2][node1] = weight;
     }
 
-    //TODO Improve
-    dfsListPaths(startNode){
+    //TODO Improve - Ignoring cycles for now
+    topologicalSort(startNode){
         let visitedNodes = new Array(this.adjMatrix.length).fill(false);
 
         function dfsSearch(startNode, nodesVisited, graph){
 
             //Base
-            if(visitedNodes[startNode] == true){
-                return null;
-            }
 
             //Mark As Visited
             nodesVisited[startNode] = true;
@@ -49,13 +46,13 @@ class GraphAdjMatrix{
             let edgeList = graph[startNode];
 
             for(let node = 0; node < edgeList.length; node++){                
-                if(edgeList[node] != null){
+                if(edgeList[node] != null && visitedNodes[node] == false){
+
                     let recursiveResult = dfsSearch(node, nodesVisited, graph);
 
-                    if(recursiveResult != null){
-                        recursiveResult = recursiveResult.map(item => [node, ...item]);
-                        result.push(...recursiveResult);
-                    }
+                    recursiveResult.unshift(node);
+
+                    result.push(...recursiveResult);
                 }
             }
 
@@ -66,8 +63,7 @@ class GraphAdjMatrix{
         }
 
 
-        let results = dfsSearch(startNode, visitedNodes, this.adjMatrix).map(item => [startNode, ...item]);
-    
+        let results = [startNode, ...dfsSearch(startNode, visitedNodes, this.adjMatrix)]
         
         
         return results;
@@ -226,5 +222,5 @@ myGraph.addBidirectionalEdge(4,9);
 
 //console.log(myGraph.getConnectedComponent(1));
 //console.log(myGraph.getAllConnectedComponents());
-console.log(myGraph.dfsListPaths(1));
-console.log(myGraph.bfsShortestPathIgnoreWeights(1, 9));
+console.log(myGraph.topologicalSort(1));
+//console.log(myGraph.bfsShortestPathIgnoreWeights(1, 9));
