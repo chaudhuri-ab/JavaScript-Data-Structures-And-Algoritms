@@ -240,6 +240,74 @@ class GraphAdjMatrix{
 
 
     }
+
+
+     bellmanFordSingleSourceShortestPaths(source){
+        let distanceArray = new Array(this.adjMatrix.length).fill(Number.POSITIVE_INFINITY);
+        let parentsArray = new Array(this.adjMatrix.length).fill(null);
+        let paths = new Array(this.adjMatrix.length).fill(null);
+
+        //Starting Node
+        distanceArray[source] = 0;
+
+        //Optimal Distance
+        for(let v = 0; v < this.adjMatrix.length - 1; v++){
+            //Relax edges v - 1 times
+            for(let i = 0; i < this.adjMatrix.length; i++){
+                for(let j = 0; j < this.adjMatrix.length; j++){
+                    if(this.adjMatrix[i][j] != null && distanceArray[i] + this.adjMatrix[i][j] < distanceArray[j]){
+                        //Update Distance
+                        distanceArray[j] = distanceArray[i] + this.adjMatrix[i][j];
+                        parentsArray[j] = i;
+                    }
+                }
+            }
+        }
+
+        //Negative Cycle Detection
+        for(let v = 0; v < this.adjMatrix.length - 1; v++){
+            //Relax edges v - 1 times
+            for(let i = 0; i < this.adjMatrix.length; i++){
+                for(let j = 0; j < this.adjMatrix.length; j++){
+                    if(this.adjMatrix[i][j] != null && distanceArray[i] + this.adjMatrix[i][j] < distanceArray[j]){
+                        //Update Distance
+                        distanceArray[j] = Number.NEGATIVE_INFINITY;
+                        parentsArray[j] = -1;
+                    }
+                }
+            }
+        }
+
+
+        //Reconstruct Paths
+        let path = new Array();
+        for(let i = 0; i < this.adjMatrix.length; i++){
+            if(distanceArray[i] == Number.POSITIVE_INFINITY){
+                paths[i] = path;
+            }
+
+            //Add Parents
+            let index = i;
+            while(parentsArray[index] != null){
+                if(parentsArray[index] == -1){
+                    paths[i] = null; //neg loop
+                    break;
+                }
+                path.unshift(parentsArray[index]);
+                index = parentsArray[index];
+            }
+
+            path.push(i);
+            paths[i] = path;
+            path = new Array();
+        }
+
+
+        //Return
+
+        return {"shortestPathWeight": distanceArray, "paths": paths};
+        
+    }
 }
 
 /**
@@ -295,8 +363,35 @@ myGraph.addBidirectionalEdge(4,9);
  myGraph2.addDirectedEdge(5,2);
  myGraph2.addDirectedEdge(0,3);
  //console.log(myGraph2.dfsPrintTerminalPaths(4));
- console.log(myGraph2.topologicalSort());
+ //console.log(myGraph2.topologicalSort());
 
+
+
+
+ /**
+ *  8           3
+ *           7 ------ 
+ *           |       |   
+ *  1  ----- 2 ----- 4 --- 9
+ *  |        |       |
+ *  3        5 -----10         0---6
+ *              10
+ * 
+ */
+
+let myGraph3 = new GraphAdjMatrix(11);
+
+myGraph3.addBidirectionalEdge(1,2);
+myGraph3.addBidirectionalEdge(1,3);
+myGraph3.addBidirectionalEdge(2,5);
+myGraph3.addBidirectionalEdge(2,4);
+myGraph3.addBidirectionalEdge(5,10, 10);
+myGraph3.addBidirectionalEdge(10,4);
+myGraph3.addBidirectionalEdge(0,6);
+myGraph3.addBidirectionalEdge(2,7);
+myGraph3.addBidirectionalEdge(4,7, 3);
+myGraph3.addBidirectionalEdge(4,9);
+console.log(myGraph3.bellmanFordSingleSourceShortestPaths(9));
 
 
 
