@@ -72,7 +72,7 @@ class GraphAdjMatrix{
         return results.map(item => [startNode, ... item]);
     }
 
-    //TODO Improve - Ignoring cycles for now
+
     topologicalSort(){
         let permenentMarks = new Array(this.adjMatrix.length).fill(false);
         let tempMarks = new Array(this.adjMatrix.length).fill(false);
