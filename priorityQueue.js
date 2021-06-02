@@ -61,6 +61,7 @@ class MinHeap{
         let rightChild = currentIndex * 2 + 1;
 
         while(leftChild <= this.count && rightChild <= this.count){
+            //Change Comp below to make max heap
             if(this.heap[currentIndex] > this.heap[leftChild] 
                 || this.heap[currentIndex] > this.heap[rightChild]){
                 //Swap items with smallest child
