@@ -50,6 +50,7 @@ class GraphAdjMatrix{
                 result.push([]);
             }
 
+            //Recursive Call
             for(let node = 0; node < edgelist.length; node++){
                 if(edgelist[node] != null && visitedNodes[node] == false){
                     let recursiveResults = dfsSearch(node, visitedNodes, graph);
@@ -62,6 +63,7 @@ class GraphAdjMatrix{
             }
 
 
+            //Return Result
             return result;
 
         }
@@ -71,45 +73,53 @@ class GraphAdjMatrix{
     }
 
     //TODO Improve - Ignoring cycles for now
-    topologicalSort(startNode){
-        let visitedNodes = new Array(this.adjMatrix.length).fill(false);
+    topologicalSort(){
+        let permenentMarks = new Array(this.adjMatrix.length).fill(false);
+        let tempMarks = new Array(this.adjMatrix.length).fill(false);
+        let result = new Array();
+        let cyclicFlag = false;
 
-        function dfsSearch(startNode, nodesVisited, graph){
-
-            //Base
-
-            //Mark As Visited
-            nodesVisited[startNode] = true;
-
-
-
-            //Recurse
-
-            let result = []
-            let edgeList = graph[startNode];
-
-            for(let node = 0; node < edgeList.length; node++){                
-                if(edgeList[node] != null && visitedNodes[node] == false){
-
-                    let recursiveResult = dfsSearch(node, nodesVisited, graph);
-
-                    recursiveResult.unshift(node);
-
-                    result.push(...recursiveResult);
+        //Recursively Search UnMarked Nodes
+        for(let node = 0; node < this.adjMatrix.length; node++){
+            if(!permenentMarks[node]){
+                //Search
+                visit(node, this.adjMatrix, tempMarks, permenentMarks, result)
+                if(cyclicFlag){
+                    return [];
                 }
+            }
+        }
+
+        return result;
+
+
+        function visit(node, graph){
+            if(tempMarks[node] || cyclicFlag){
+                cyclicFlag = true;
+                return;
+            }
+
+            if(permenentMarks[node] == false){
+                tempMarks[node] = true;
+                let edgeList = graph[node];
+
+                for(let node = 0; node < edgeList.length; node++){
+                    if(edgeList[node] != null){
+                        visit(node, graph)
+                    }
+                }
+
+                //Update Markings
+                permenentMarks[node] = true;
+                tempMarks[node] = false;
+                result.push(node);
+
             }
 
 
-
-            //Result
-            return result;
         }
 
-
-        let results = [startNode, ...dfsSearch(startNode, visitedNodes, this.adjMatrix)]
         
-        
-        return results;
         
 
     }
@@ -238,32 +248,57 @@ class GraphAdjMatrix{
  *           |       |   
  *  1  ----- 2 ----- 4 --- 9
  *  |        |       |
- *  3        5 ------          0---6
+ *  3        5 -----10         0---6
  * 
  * 
  */
 
-let myGraph = new GraphAdjMatrix(10);
+let myGraph = new GraphAdjMatrix(11);
 
 myGraph.addBidirectionalEdge(1,2);
 myGraph.addBidirectionalEdge(1,3);
 myGraph.addBidirectionalEdge(2,5);
 myGraph.addBidirectionalEdge(2,4);
-myGraph.addBidirectionalEdge(4,5);
+myGraph.addBidirectionalEdge(5,10);
+myGraph.addBidirectionalEdge(10,4);
 myGraph.addBidirectionalEdge(0,6);
 myGraph.addBidirectionalEdge(2,7);
 myGraph.addBidirectionalEdge(4,7);
 myGraph.addBidirectionalEdge(4,9);
 
 
-
-
-
-
-
 //console.log(myGraph.adjMatrix);
 
 //console.log(myGraph.getConnectedComponent(1));
 //console.log(myGraph.getAllConnectedComponents());
-console.log(myGraph.dfsPrintTerminalPaths(1));
+//console.log(myGraph.dfsPrintTerminalPaths(1));
 //console.log(myGraph.bfsShortestPathIgnoreWeights(1, 9));
+
+
+
+/**
+ *  
+ *             -1 <----- 
+ *           /           \
+ *   4 <-----             <--3<---0
+ *           \           /
+ *            -2 <- 5 <--       
+ * 
+ * 
+ */
+
+ let myGraph2 = new GraphAdjMatrix(6);
+ myGraph2.addDirectedEdge(1,4);
+ myGraph2.addDirectedEdge(2,4);
+ myGraph2.addDirectedEdge(3,1);
+ myGraph2.addDirectedEdge(3,5);
+ myGraph2.addDirectedEdge(5,2);
+ myGraph2.addDirectedEdge(0,3);
+ //console.log(myGraph2.dfsPrintTerminalPaths(4));
+ console.log(myGraph2.topologicalSort());
+
+
+
+
+
+
