@@ -31,7 +31,7 @@ class GraphAdjMatrix{
     dfsPrintTerminalPaths(startNode){
         let visitedNodes = new Array(this.adjMatrix.length).fill(false);
 
-        function dfsSearch(startNode, nodesVisited, graph){
+        function dfsSearch(startNode, graph){
             let result = [];
             visitedNodes[startNode] = true;
 
@@ -48,16 +48,16 @@ class GraphAdjMatrix{
 
             if(!canTraverserChild){
                 result.push([]);
+                return result;
             }
 
             //Recursive Call
             for(let node = 0; node < edgelist.length; node++){
                 if(edgelist[node] != null && visitedNodes[node] == false){
-                    let recursiveResults = dfsSearch(node, visitedNodes, graph);
-                    if(recursiveResults.length > 0){
-                        recursiveResults = recursiveResults.map(item => [node, ...item]);
-                        result.push(...recursiveResults);
-                    }
+                    let recursiveResults = dfsSearch(node, graph);
+                    recursiveResults = recursiveResults.map(item => [node, ...item]);
+                    result.push(...recursiveResults);
+                    
                 }
 
             }
@@ -68,7 +68,7 @@ class GraphAdjMatrix{
 
         }
 
-        let results = dfsSearch(startNode, visitedNodes, this.adjMatrix);
+        let results = dfsSearch(startNode, this.adjMatrix);
         return results.map(item => [startNode, ... item]);
     }
 
@@ -77,16 +77,13 @@ class GraphAdjMatrix{
         let permenentMarks = new Array(this.adjMatrix.length).fill(false);
         let tempMarks = new Array(this.adjMatrix.length).fill(false);
         let result = new Array();
-        let cyclicFlag = false;
 
         //Recursively Search UnMarked Nodes
         for(let node = 0; node < this.adjMatrix.length; node++){
             if(!permenentMarks[node]){
                 //Search
                 visit(node, this.adjMatrix, tempMarks, permenentMarks, result)
-                if(cyclicFlag){
-                    return [];
-                }
+    
             }
         }
 
@@ -94,8 +91,7 @@ class GraphAdjMatrix{
 
 
         function visit(node, graph){
-            if(tempMarks[node] || cyclicFlag){
-                cyclicFlag = true;
+            if(tempMarks[node]){
                 return;
             }
 
@@ -339,7 +335,7 @@ myGraph.addBidirectionalEdge(4,9);
 
 //console.log(myGraph.getConnectedComponent(1));
 //console.log(myGraph.getAllConnectedComponents());
-//console.log(myGraph.dfsPrintTerminalPaths(1));
+console.log(myGraph.dfsPrintTerminalPaths(1));
 //console.log(myGraph.bfsShortestPathIgnoreWeights(1, 9));
 
 
@@ -362,7 +358,7 @@ myGraph.addBidirectionalEdge(4,9);
  myGraph2.addDirectedEdge(3,5);
  myGraph2.addDirectedEdge(5,2);
  myGraph2.addDirectedEdge(0,3);
- //console.log(myGraph2.dfsPrintTerminalPaths(4));
+ //console.log(myGraph2.dfsPrintTerminalPaths(0));
  //console.log(myGraph2.topologicalSort());
 
 
@@ -391,9 +387,30 @@ myGraph3.addBidirectionalEdge(0,6);
 myGraph3.addBidirectionalEdge(2,7);
 myGraph3.addBidirectionalEdge(4,7, 3);
 myGraph3.addBidirectionalEdge(4,9);
-console.log(myGraph3.bellmanFordSingleSourceShortestPaths(9));
+//console.log(myGraph3.bellmanFordSingleSourceShortestPaths(9));
 
 
+ /**
+ *              3
+ *           7 ------8 
+ *           |       |   
+ *  1  ----- 2 ----- 4 --- 9
+ *  | \      |       |
+ *  3  0     5 ----- 6         
+ *              10
+ * 
+ */
 
 
+  let myGraph4 = new GraphAdjMatrix(11);
 
+  myGraph3.addBidirectionalEdge(1,2);
+  myGraph3.addBidirectionalEdge(1,3);
+  myGraph3.addBidirectionalEdge(2,5);
+  myGraph3.addBidirectionalEdge(2,4);
+  myGraph3.addBidirectionalEdge(5,10, 10);
+  myGraph3.addBidirectionalEdge(10,4);
+  myGraph3.addBidirectionalEdge(0,6);
+  myGraph3.addBidirectionalEdge(2,7);
+  myGraph3.addBidirectionalEdge(4,7, 3);
+  myGraph3.addBidirectionalEdge(4,9);
