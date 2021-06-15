@@ -28,6 +28,12 @@ class GraphAdjMatrix{
     }
 
 
+    /**
+     * Print all terminal paths from starting node
+     * 
+     * @param {*} startNode 
+     * @returns 
+     */
     dfsPrintTerminalPaths(startNode){
         let visitedNodes = new Array(this.adjMatrix.length).fill(false);
 
@@ -69,7 +75,83 @@ class GraphAdjMatrix{
         }
 
         let results = dfsSearch(startNode, this.adjMatrix);
-        return results.map(item => [startNode, ... item]);
+        return results.map(item => [... item]);
+    }
+
+
+    /**
+     * Print all terminal paths from starting node without using a current path
+     * vs. recursively constructing the path on return calls
+     * 
+     * @param {*} startNode 
+     * @returns all terminal paths that can be reached from the starting node
+     */
+    dfsPrintTerminalPaths2(startNode){
+        let visitedNodes = new Array(this.adjMatrix.length).fill(false);
+        let results = [];
+
+        function dfsSearch(currentNode, graph, currentPath = []){
+
+            let canTraverseChild = false;
+            let edges = graph[currentNode];
+            visitedNodes[currentNode] = true;
+            let path = [...currentPath];
+            path.push(currentNode);
+
+            //Recurse
+            for(let node = 0; node < edges.length; node++){
+                if(edges[node] != null && visitedNodes[node] == false){
+                    canTraverseChild = true;
+                    dfsSearch(node, graph, path);
+                }
+            }
+
+            if(!canTraverseChild){
+                results.push(path);
+            }
+            return;
+        }
+
+        dfsSearch(startNode, this.adjMatrix);
+        return results;
+
+    }
+
+
+    /**
+     * Returns a path from start to destination node
+     * 
+     * @param {*} startNode 
+     * @param {*} endNode 
+     * @returns an array of a path from start to destination node
+     */
+    dfsCanReach(startNode, endNode){
+
+        let visited = new Array(this.adjMatrix.length).fill(false);
+        let results = [];
+
+        function dfsSearch(node, destNode, graph, path = []){
+            //Base
+            if(node == destNode){
+                results.push([...path, node]);
+            }
+            visited[node] = true;
+
+            //Recurse
+            let edgeList = graph[node]
+            let currPath = [...path, node];
+
+            for(let n = 0; n < edgeList.length; n++){
+                if(edgeList[n] != null && visited[n] == false){
+                    dfsSearch(n, destNode, graph, currPath);
+                }
+            }
+
+        }
+
+        dfsSearch(startNode, endNode, this.adjMatrix, []);
+
+        return results;
     }
 
 
@@ -335,7 +417,9 @@ myGraph.addBidirectionalEdge(4,9);
 
 //console.log(myGraph.getConnectedComponent(1));
 //console.log(myGraph.getAllConnectedComponents());
-console.log(myGraph.dfsPrintTerminalPaths(1));
+//console.log(myGraph.dfsPrintTerminalPaths(1));
+//console.log(myGraph.dfsPrintTerminalPaths2(1));
+console.log(myGraph.dfsCanReach(9,10));
 //console.log(myGraph.bfsShortestPathIgnoreWeights(1, 9));
 
 
