@@ -117,6 +117,46 @@ class GraphAdjMatrix{
 
     }
 
+    /**
+     * Get all connected components
+     *  
+     * @returns Connected Component
+     */
+    dfsGetAllConnectedComponents(){
+        let visited = new Array(this.adjMatrix.length).fill(false);
+        let results = [];
+
+
+        function dfsSearch(node, graph, currentPath =[], memberConnectedComponent = []){
+
+            let path = [...currentPath, node];
+            visited[node] = true;
+            memberConnectedComponent.push(node);
+            let canTraverseChild = false;
+            let edgeList = graph[node];
+
+            //Recursive Call
+            for(let n = 0; n < edgeList.length; n++){
+                if(edgeList[n] != null && visited[n] == false){
+                    canTraverseChild = true;
+                    dfsSearch(n, graph, path, memberConnectedComponent);
+                }
+            }
+            return memberConnectedComponent;
+        }
+
+
+        for(let i = 0; i < visited.length; i++){
+            if(visited[i] == false){
+               let component = dfsSearch(i, this.adjMatrix, [], []);
+                results.push(component);
+            }
+        }
+
+
+        return results;
+    }
+
 
     /**
      * Returns a path from start to destination node
@@ -154,7 +194,10 @@ class GraphAdjMatrix{
         return results;
     }
 
-
+    /**
+     * For a graph where each node points to dependancy
+     * @returns 
+     */
     topologicalSort(){
         let permenentMarks = new Array(this.adjMatrix.length).fill(false);
         let tempMarks = new Array(this.adjMatrix.length).fill(false);
@@ -164,7 +207,7 @@ class GraphAdjMatrix{
         for(let node = 0; node < this.adjMatrix.length; node++){
             if(!permenentMarks[node]){
                 //Search
-                visit(node, this.adjMatrix, tempMarks, permenentMarks, result)
+                visit(node, this.adjMatrix)
     
             }
         }
@@ -192,13 +235,62 @@ class GraphAdjMatrix{
                 tempMarks[node] = false;
                 result.push(node);
 
-            }
+            } 
 
 
         }
 
         
         
+
+    }
+
+
+     /**
+     * For a graph where each dependancy points to child
+     * @returns 
+     */
+      topologicalSort2(){
+        let permenentMarks = new Array(this.adjMatrix.length).fill(false);
+        let tempMarks = new Array(this.adjMatrix.length).fill(false);
+        let result = new Array();
+
+        //Recursively Search UnMarked Nodes
+        for(let node = 0; node < this.adjMatrix.length; node++){
+            if(!permenentMarks[node]){
+                //Search
+                visit(node, this.adjMatrix)
+    
+            }
+        }
+
+        return result;
+
+
+        function visit(node, graph){
+            if(tempMarks[node]){
+                return;
+            }
+
+            if(permenentMarks[node] == false){
+                tempMarks[node] = true;
+                let edgeList = graph[node];
+
+                for(let node = 0; node < edgeList.length; node++){
+                    if(edgeList[node] != null){
+                        visit(node, graph)
+                    }
+                }
+
+                //Update Markings
+                permenentMarks[node] = true;
+                tempMarks[node] = false;
+                result.unshift(node);
+
+            } 
+
+
+        }
 
     }
 
@@ -319,6 +411,103 @@ class GraphAdjMatrix{
 
     }
 
+    /**
+     * BFS listing level of each node
+     * @param {*} startNode 
+     * @returns 
+     */
+    bfsPrintLevels(startNode){
+        let visited = new Array(this.adjMatrix.length).fill(false);
+        let results = [];
+        let queue = [];
+
+        visited[startNode] = true;
+        queue.push({node: startNode, level: 0});
+        let currentLevel = 0;
+        let currentLevelMembers = []
+
+        while(queue.length > 0){
+            let curNode = queue.shift();
+            //Print Node
+            if(curNode.level == currentLevel){
+                currentLevelMembers.push(curNode);
+            }else{
+                currentLevel = curNode.level;
+                results.push(currentLevelMembers);
+                currentLevelMembers = [curNode];
+            }
+
+            let edgeList = this.adjMatrix[curNode.node];
+
+            for(let n = 0; n < edgeList.length; n++){
+                if(edgeList[n] != null && visited[n] == false){
+                    queue.push({node: n, level: curNode.level + 1})
+                    visited[n] = true;
+
+                }
+            }
+        }
+
+        if(currentLevelMembers.length != 0){
+            results.push(currentLevelMembers);
+        }
+
+        return results;
+    }
+
+
+/**
+ * Single Source Shortest Path using topsort
+ * Works on DAG
+ * O(V+E)
+ * @param {} start 
+ * @returns 
+ */
+    singleSourceShortestPathTopSort(start){
+        let topSort = this.topologicalSort2();
+        let results = new Array(topSort.length).fill(Number.POSITIVE_INFINITY);
+        let parent = new Array(topSort.length).fill(null);
+        results[start] = 0;
+
+        //Relax edges
+        for(let i = 0; i < topSort.length; i++){
+            let currNode = topSort[i];
+            let edges = this.adjMatrix[currNode];
+
+            for(let n = 0; n < edges.length; n++){
+                if(edges[n] != null){
+                    let dist = results[currNode] + edges[n];
+                    if(dist < results[n]){
+                        //Update to better val
+                        parent[n] = currNode;
+                        results[n] = dist;
+                    }
+                }
+            }
+        }
+
+        let resString = '';
+
+        for(let n in results){
+            resString += n + ": Cost = " + results[n] + "; Path - ";
+            
+            let path = [];
+            let parentNode = parent[n];
+            if(parentNode != null){
+                path.unshift(n);
+            }
+
+            while(parentNode != null){
+                path.unshift(parentNode);
+                parentNode = parent[parentNode];
+            }
+            resString += path.join(", ") + "\n";
+            
+        }
+
+        return resString;
+    }
+
 
      bellmanFordSingleSourceShortestPaths(source){
         let distanceArray = new Array(this.adjMatrix.length).fill(Number.POSITIVE_INFINITY);
@@ -419,16 +608,20 @@ myGraph.addBidirectionalEdge(4,9);
 //console.log(myGraph.getAllConnectedComponents());
 //console.log(myGraph.dfsPrintTerminalPaths(1));
 //console.log(myGraph.dfsPrintTerminalPaths2(1));
-console.log(myGraph.dfsCanReach(9,10));
+//console.log(myGraph.dfsCanReach(9,10));
+//console.log(myGraph.dfsGetAllConnectedComponents());
+//console.log(myGraph.bfsPrintLevels(1));
 //console.log(myGraph.bfsShortestPathIgnoreWeights(1, 9));
 
 
 
 /**
- *  
+ *  //Pointing to dependencies
+ *  //Point to Children if unshift results
+ * 
  *             -1 <----- 
  *           /           \
- *   4 <-----             <--3<---0
+ *   0 <-----             <--3<---4
  *           \           /
  *            -2 <- 5 <--       
  * 
@@ -436,14 +629,14 @@ console.log(myGraph.dfsCanReach(9,10));
  */
 
  let myGraph2 = new GraphAdjMatrix(6);
- myGraph2.addDirectedEdge(1,4);
- myGraph2.addDirectedEdge(2,4);
+ myGraph2.addDirectedEdge(1,0);
+ myGraph2.addDirectedEdge(2,0);
  myGraph2.addDirectedEdge(3,1);
  myGraph2.addDirectedEdge(3,5);
  myGraph2.addDirectedEdge(5,2);
- myGraph2.addDirectedEdge(0,3);
+ myGraph2.addDirectedEdge(4,3);
  //console.log(myGraph2.dfsPrintTerminalPaths(0));
- //console.log(myGraph2.topologicalSort());
+ //console.log(myGraph2.topologicalSort2());
 
 
 
@@ -472,7 +665,7 @@ myGraph3.addBidirectionalEdge(2,7);
 myGraph3.addBidirectionalEdge(4,7, 3);
 myGraph3.addBidirectionalEdge(4,9);
 //console.log(myGraph3.bellmanFordSingleSourceShortestPaths(9));
-
+console.log(myGraph3.singleSourceShortestPathTopSort(1));
 
  /**
  *              3
