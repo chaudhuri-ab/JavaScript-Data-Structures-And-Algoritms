@@ -465,9 +465,9 @@ class GraphAdjMatrix{
  */
     singleSourceShortestPathTopSort(start){
         let topSort = this.topologicalSort2();
-        let results = new Array(topSort.length).fill(Number.POSITIVE_INFINITY);
+        let distance = new Array(topSort.length).fill(Number.POSITIVE_INFINITY);
         let parent = new Array(topSort.length).fill(null);
-        results[start] = 0;
+        distance[start] = 0;
 
         //Relax edges
         for(let i = 0; i < topSort.length; i++){
@@ -476,11 +476,11 @@ class GraphAdjMatrix{
 
             for(let n = 0; n < edges.length; n++){
                 if(edges[n] != null){
-                    let dist = results[currNode] + edges[n];
-                    if(dist < results[n]){
+                    let dist = distance[currNode] + edges[n];
+                    if(dist < distance[n]){
                         //Update to better val
                         parent[n] = currNode;
-                        results[n] = dist;
+                        distance[n] = dist;
                     }
                 }
             }
@@ -488,8 +488,8 @@ class GraphAdjMatrix{
 
         let resString = '';
 
-        for(let n in results){
-            resString += n + ": Cost = " + results[n] + "; Path - ";
+        for(let n in distance){
+            resString += n + ": Cost = " + distance[n] + "; Path - ";
             
             let path = [];
             let parentNode = parent[n];
@@ -508,6 +508,63 @@ class GraphAdjMatrix{
         return resString;
     }
 
+    /**
+     * Works for no negative edge weights
+     * O(E*log(V))
+     * @param {*} start 
+     */
+    dijkstraSingleSourceShortestPath(start){
+        let distance = new Array(this.adjMatrix.length).fill(Number.POSITIVE_INFINITY);
+        let parent = new Array(this.adjMatrix.length).fill(null);
+        let visited = new Array(this.adjMatrix.length).fill(false);
+        distance[start] = 0;
+        let pq = new MinPriorityQueue();
+        pq.addItem(start, 0);
+
+        while(pq.count != 0){
+            let nodeObj = pq.removeMin();
+            visited[nodeObj.node] = true;
+
+            if(distance[nodeObj.node] < nodeObj.cost){
+                continue;
+            }
+
+            let edges = this.adjMatrix[nodeObj.node];
+            for(let i in edges){
+                if(edges[i] != null && visited[i] == false){
+                    let newDist = distance[nodeObj.node] + edges[i];
+                    if(newDist < distance[i]){
+                        parent[i] = nodeObj.node;
+                        distance[i] = newDist;
+                        pq.addItem(i, newDist);
+                    }
+                }
+            }
+
+        }
+
+        let resString = '';
+
+        for(let n in distance){
+            resString += n + ": Cost = " + distance[n] + "; Path - ";
+            
+            let path = [];
+            let parentNode = parent[n];
+            if(parentNode != null){
+                path.unshift(n);
+            }
+
+            while(parentNode != null){
+                path.unshift(parentNode);
+                parentNode = parent[parentNode];
+            }
+            resString += path.join(", ") + "\n";
+            
+        }
+
+        return resString;
+
+    }
 
      bellmanFordSingleSourceShortestPaths(source){
         let distanceArray = new Array(this.adjMatrix.length).fill(Number.POSITIVE_INFINITY);
@@ -643,8 +700,8 @@ class MinPriorityQueue{
 
         while(leftChild <= this.count || rightChild <= this.count){
             //Change Comp below to make max heap
-            if(this.heap[currentIndex].cost > this.heap[leftChild].cost 
-                || this.heap[currentIndex].cost > this.heap[rightChild].cost){
+            if(this.heap[currentIndex].cost > this.heap[leftChild]?.cost 
+                || this.heap[currentIndex].cost > this.heap[rightChild]?.cost){
                 //Swap items with smallest child
                 if(rightChild > this.count || this.heap[leftChild].cost < this.heap[rightChild].cost){
                     let temp = this.heap[leftChild];
@@ -766,6 +823,7 @@ myGraph3.addBidirectionalEdge(4,7, 3);
 myGraph3.addBidirectionalEdge(4,9);
 //console.log(myGraph3.bellmanFordSingleSourceShortestPaths(9));
 //console.log(myGraph3.singleSourceShortestPathTopSort(1));
+console.log(myGraph3.dijkstraSingleSourceShortestPath(1));
 
 
  /**
