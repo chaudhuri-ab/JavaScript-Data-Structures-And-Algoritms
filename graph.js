@@ -593,18 +593,18 @@ class MinPriorityQueue{
     }
 
 
-    addItem(data){
+    addItem(node, cost){
         if(this.count == 0){
-            this.heap[1] = data;
+            this.heap[1] = {node, cost};
         }else{
-            this.heap[this.count + 1] = data;
+            this.heap[this.count + 1] = {node, cost};
 
             //Bubble Data Up
             let currentIndex = this.count + 1;
             let parentIndex = Math.floor(currentIndex/2);
 
             while(parentIndex >= 1){
-                if(this.heap[parentIndex] > this.heap[currentIndex]){
+                if(this.heap[parentIndex].cost > this.heap[currentIndex].cost){
                     //Swap items
                     let temp = this.heap[parentIndex];
                     this.heap[parentIndex] = this.heap[currentIndex];
@@ -643,10 +643,10 @@ class MinPriorityQueue{
 
         while(leftChild <= this.count || rightChild <= this.count){
             //Change Comp below to make max heap
-            if(this.heap[currentIndex] > this.heap[leftChild] 
-                || this.heap[currentIndex] > this.heap[rightChild]){
+            if(this.heap[currentIndex].cost > this.heap[leftChild].cost 
+                || this.heap[currentIndex].cost > this.heap[rightChild].cost){
                 //Swap items with smallest child
-                if(rightChild > this.count || this.heap[leftChild] < this.heap[rightChild]){
+                if(rightChild > this.count || this.heap[leftChild].cost < this.heap[rightChild].cost){
                     let temp = this.heap[leftChild];
                     this.heap[leftChild] = this.heap[currentIndex];
                     this.heap[currentIndex] = temp;
@@ -765,7 +765,8 @@ myGraph3.addBidirectionalEdge(2,7);
 myGraph3.addBidirectionalEdge(4,7, 3);
 myGraph3.addBidirectionalEdge(4,9);
 //console.log(myGraph3.bellmanFordSingleSourceShortestPaths(9));
-console.log(myGraph3.singleSourceShortestPathTopSort(1));
+//console.log(myGraph3.singleSourceShortestPathTopSort(1));
+
 
  /**
  *              3
