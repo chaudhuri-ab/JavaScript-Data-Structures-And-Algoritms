@@ -254,10 +254,6 @@ class GraphAdjMatrix{
 
 
         }
-
-        
-        
-
     }
 
 
@@ -655,6 +651,51 @@ class GraphAdjMatrix{
         return {"shortestPathWeight": distanceArray, "paths": paths};
         
     }
+
+
+            
+    getBridges(){
+        let id = 0;
+        let low = new Array(this.adjMatrix.length).fill(0);
+        let ids = new Array(this.adjMatrix.length).fill(0);
+        let visited = new Array(this.adjMatrix.length).fill(false);
+        let bridges = [];
+
+        for(let node = 0; node < visited.length; node++){
+            if(visited[node] != true){
+                dfs(node, -1, this.adjMatrix);
+            }
+        }
+
+        function dfs(node, parent, graph){
+            visited[node] = true;
+            low[node] = id + 1;
+            ids[node] = id + 1;
+            id++;
+
+            let edges = graph[node];
+
+            for(let n = 0; n < edges.length; n++){
+                if(edges[n] != null && n == parent){
+                    continue;
+                }
+
+                if(edges[n] != null && !visited[n]){
+                    dfs(n, node, graph);
+                    low[node] = Math.min(low[node], low[n]);
+                    if(ids[node] < low[n]){
+                        bridges.push([node, n]);
+                    }
+                }else if(edges[n] != null){
+                    low[node] = Math.min(low[node], ids[n]);
+                }
+            }
+        }
+
+
+        return bridges;
+    }
+
 }
 
 
@@ -787,12 +828,12 @@ myGraph.addBidirectionalEdge(4,9);
 //console.log(myGraph.getConnectedComponent(1));
 //console.log(myGraph.getAllConnectedComponents());
 //console.log(myGraph.dfsPrintTerminalPaths(1));
-console.log(myGraph.dfsPrintAllPaths(1));
+//console.log(myGraph.dfsPrintAllPaths(1));
 //console.log(myGraph.dfsCanReach(9,10));
 //console.log(myGraph.dfsGetAllConnectedComponents());
 //console.log(myGraph.bfsPrintLevels(1));
 //console.log(myGraph.bfsShortestPathIgnoreWeights(1, 9));
-
+console.log(myGraph.getBridges());
 
 
 /**
