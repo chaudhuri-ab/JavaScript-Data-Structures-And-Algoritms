@@ -75,7 +75,7 @@ class GraphAdjMatrix{
         }
 
         let results = dfsSearch(startNode, this.adjMatrix);
-        return results.map(item => [... item]);
+        return results.map(item => [startNode, ...item]);
     }
 
 
@@ -696,6 +696,49 @@ class GraphAdjMatrix{
         return bridges;
     }
 
+
+    primsMinSpanTree(){
+
+    
+        let visited = new Array(this.adjMatrix.length).fill(false);
+        let pq = new MinPriorityQueue();
+        let startNode = 2;
+
+        visited[startNode] = true;
+        let edgeList = this.adjMatrix[startNode];
+        let visitedNodeCount = 1;
+        let minSpanTree = [];
+        let mstCost = 0;
+        
+
+        //Load Queue
+        for(let n = 0; n < edgeList.length; n++){
+            if(edgeList[n] != null){
+                pq.addItem(n, edgeList[n], startNode);
+            }
+        }
+
+        while(pq.count != 0 && visitedNodeCount != visited.length){
+            let nodeObj = pq.removeMin();
+
+            if(visited[nodeObj.node] == false){
+                let edgeList = this.adjMatrix[nodeObj.node];
+                for(let n = 0; n < edgeList.length; n++){
+                    if(edgeList[n] != null){
+                        pq.addItem(n, edgeList[n], nodeObj.node);
+                    }
+                }
+                minSpanTree.push([nodeObj.parent, nodeObj.node])
+                mstCost += nodeObj.cost;
+                visited[nodeObj.node] = true;
+                visitedNodeCount++;
+            }
+        }
+
+        
+        return {minSpanTree, mstCost};
+    }
+
 }
 
 
@@ -714,11 +757,11 @@ class MinPriorityQueue{
     }
 
 
-    addItem(node, cost){
+    addItem(node, cost, parent = null){
         if(this.count == 0){
-            this.heap[1] = {node, cost};
+            this.heap[1] = {node, cost, parent};
         }else{
-            this.heap[this.count + 1] = {node, cost};
+            this.heap[this.count + 1] = {node, cost, parent};
 
             //Bubble Data Up
             let currentIndex = this.count + 1;
@@ -833,7 +876,7 @@ myGraph.addBidirectionalEdge(4,9);
 //console.log(myGraph.dfsGetAllConnectedComponents());
 //console.log(myGraph.bfsPrintLevels(1));
 //console.log(myGraph.bfsShortestPathIgnoreWeights(1, 9));
-console.log(myGraph.getBridges());
+//console.log(myGraph.getBridges());
 
 
 /**
@@ -904,13 +947,16 @@ myGraph3.addBidirectionalEdge(4,9);
 
   let myGraph4 = new GraphAdjMatrix(11);
 
-  myGraph3.addBidirectionalEdge(1,2);
-  myGraph3.addBidirectionalEdge(1,3);
-  myGraph3.addBidirectionalEdge(2,5);
-  myGraph3.addBidirectionalEdge(2,4);
-  myGraph3.addBidirectionalEdge(5,10, 10);
-  myGraph3.addBidirectionalEdge(10,4);
-  myGraph3.addBidirectionalEdge(0,6);
-  myGraph3.addBidirectionalEdge(2,7);
-  myGraph3.addBidirectionalEdge(4,7, 3);
-  myGraph3.addBidirectionalEdge(4,9);
+  myGraph4.addBidirectionalEdge(1,2);
+  myGraph4.addBidirectionalEdge(1,3);
+  myGraph4.addBidirectionalEdge(1,0);
+  myGraph4.addBidirectionalEdge(2,5);
+  myGraph4.addBidirectionalEdge(2,4);
+  myGraph4.addBidirectionalEdge(2,7);
+  myGraph4.addBidirectionalEdge(5,6,10);
+  myGraph4.addBidirectionalEdge(7,8,3);
+  myGraph4.addBidirectionalEdge(4,9);
+  myGraph4.addBidirectionalEdge(6,4);
+  myGraph4.addBidirectionalEdge(8,4);
+  //console.log(myGraph4.dfsPrintTerminalPaths(1));
+  console.log(myGraph4.primsMinSpanTree());
