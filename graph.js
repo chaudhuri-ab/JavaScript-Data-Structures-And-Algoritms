@@ -80,40 +80,55 @@ class GraphAdjMatrix{
 
 
     /**
-     * Print all terminal paths from starting node without using a current path
-     * vs. recursively constructing the path on return calls
+     * Print all  paths from starting node to destination
      * 
      * @param {*} startNode 
-     * @returns all terminal paths that can be reached from the starting node
+     * @returns all paths that can be reached from the starting node [] if cannot be reached
      */
-    dfsPrintTerminalPaths2(startNode){
+    dfsPrintAllPaths(startNode){
         let visitedNodes = new Array(this.adjMatrix.length).fill(false);
-        let results = [];
+        let parents = new Array(this.adjMatrix.length).fill(null);
 
-        function dfsSearch(currentNode, graph, currentPath = []){
+        function dfsSearch(currentNode, graph, parent = null){
 
-            let canTraverseChild = false;
             let edges = graph[currentNode];
             visitedNodes[currentNode] = true;
-            let path = [...currentPath];
-            path.push(currentNode);
+            parents[currentNode] = parent;
+
 
             //Recurse
             for(let node = 0; node < edges.length; node++){
                 if(edges[node] != null && visitedNodes[node] == false){
-                    canTraverseChild = true;
-                    dfsSearch(node, graph, path);
+                    dfsSearch(node, graph, currentNode);
                 }
             }
 
-            if(!canTraverseChild){
-                results.push(path);
-            }
+
             return;
         }
 
         dfsSearch(startNode, this.adjMatrix);
-        return results;
+
+        let resultPaths = [];
+
+        for(let node = 0; node < parents.length; node++){
+            if(parents[node] != null){
+                let path = [node];
+                let p = parents[node];
+                while(p != null){
+                    path.unshift(p);
+                    p = parents[p];
+                }
+
+                resultPaths.push(path);
+            }else if(node != startNode){
+                resultPaths.push([]);
+            }else{
+                resultPaths.push(["startNode"]);
+            }
+        }
+
+        return resultPaths;
 
     }
 
@@ -458,7 +473,7 @@ class GraphAdjMatrix{
 
 /**
  * Single Source Shortest Path using topsort
- * Works on DAG
+ * Works on DAG, negative edges, but only if topsort can be found
  * O(V+E)
  * @param {} start 
  * @returns 
@@ -566,6 +581,14 @@ class GraphAdjMatrix{
 
     }
 
+
+    /**
+     * SSSP O(EV)
+     * Works on negative edges
+     * Detects Negative Cycles
+     * @param {*} source 
+     * @returns 
+     */
      bellmanFordSingleSourceShortestPaths(source){
         let distanceArray = new Array(this.adjMatrix.length).fill(Number.POSITIVE_INFINITY);
         let parentsArray = new Array(this.adjMatrix.length).fill(null);
@@ -764,7 +787,7 @@ myGraph.addBidirectionalEdge(4,9);
 //console.log(myGraph.getConnectedComponent(1));
 //console.log(myGraph.getAllConnectedComponents());
 //console.log(myGraph.dfsPrintTerminalPaths(1));
-//console.log(myGraph.dfsPrintTerminalPaths2(1));
+console.log(myGraph.dfsPrintAllPaths(1));
 //console.log(myGraph.dfsCanReach(9,10));
 //console.log(myGraph.dfsGetAllConnectedComponents());
 //console.log(myGraph.bfsPrintLevels(1));
@@ -792,7 +815,7 @@ myGraph.addBidirectionalEdge(4,9);
  myGraph2.addDirectedEdge(3,5);
  myGraph2.addDirectedEdge(5,2);
  myGraph2.addDirectedEdge(4,3);
- //console.log(myGraph2.dfsPrintTerminalPaths(0));
+ //console.log(myGraph2.dfsPrintTerminalPaths2(0));
  //console.log(myGraph2.topologicalSort2());
 
 
@@ -823,7 +846,7 @@ myGraph3.addBidirectionalEdge(4,7, 3);
 myGraph3.addBidirectionalEdge(4,9);
 //console.log(myGraph3.bellmanFordSingleSourceShortestPaths(9));
 //console.log(myGraph3.singleSourceShortestPathTopSort(1));
-console.log(myGraph3.dijkstraSingleSourceShortestPath(1));
+//console.log(myGraph3.dijkstraSingleSourceShortestPath(1));
 
 
  /**
