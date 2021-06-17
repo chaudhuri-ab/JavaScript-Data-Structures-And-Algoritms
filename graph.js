@@ -723,15 +723,17 @@ class GraphAdjMatrix{
 
             if(visited[nodeObj.node] == false){
                 let edgeList = this.adjMatrix[nodeObj.node];
+                minSpanTree.push([nodeObj.parent, nodeObj.node])
+                mstCost += nodeObj.cost;
+                visited[nodeObj.node] = true;
+                visitedNodeCount++;
+                
                 for(let n = 0; n < edgeList.length; n++){
                     if(edgeList[n] != null){
                         pq.addItem(n, edgeList[n], nodeObj.node);
                     }
                 }
-                minSpanTree.push([nodeObj.parent, nodeObj.node])
-                mstCost += nodeObj.cost;
-                visited[nodeObj.node] = true;
-                visitedNodeCount++;
+
             }
         }
 
