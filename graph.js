@@ -702,7 +702,7 @@ class GraphAdjMatrix{
     
         let visited = new Array(this.adjMatrix.length).fill(false);
         let pq = new MinPriorityQueue();
-        let startNode = 2;
+        let startNode = 0;
 
         visited[startNode] = true;
         let edgeList = this.adjMatrix[startNode];
@@ -723,11 +723,11 @@ class GraphAdjMatrix{
 
             if(visited[nodeObj.node] == false){
                 let edgeList = this.adjMatrix[nodeObj.node];
-                minSpanTree.push([nodeObj.parent, nodeObj.node])
+                minSpanTree.push([[nodeObj.parent, nodeObj.node].join(" to "), nodeObj.cost])
                 mstCost += nodeObj.cost;
                 visited[nodeObj.node] = true;
                 visitedNodeCount++;
-                
+
                 for(let n = 0; n < edgeList.length; n++){
                     if(edgeList[n] != null){
                         pq.addItem(n, edgeList[n], nodeObj.node);
