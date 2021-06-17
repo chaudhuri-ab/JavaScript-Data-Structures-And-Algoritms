@@ -955,7 +955,7 @@ myGraph3.addBidirectionalEdge(4,9);
   myGraph4.addBidirectionalEdge(2,5);
   myGraph4.addBidirectionalEdge(2,4);
   myGraph4.addBidirectionalEdge(2,7);
-  myGraph4.addBidirectionalEdge(5,6,10);
+  myGraph4.addBidirectionalEdge(5,6,-10);
   myGraph4.addBidirectionalEdge(7,8,3);
   myGraph4.addBidirectionalEdge(4,9);
   myGraph4.addBidirectionalEdge(6,4);
