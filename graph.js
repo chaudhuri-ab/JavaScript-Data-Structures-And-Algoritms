@@ -529,8 +529,8 @@ class GraphAdjMatrix{
         let parent = new Array(this.adjMatrix.length).fill(null);
         let visited = new Array(this.adjMatrix.length).fill(false);
         distance[start] = 0;
-        let pq = new MinPriorityQueue();
-        pq.addItem(start, 0);
+        let pq = new GeneralPriorityQueue((a,b) => a?.cost - b?.cost);
+        pq.addItem({node: start, cost: 0, parent: null});
 
         while(pq.count != 0){
             let nodeObj = pq.removeMin();
@@ -547,7 +547,7 @@ class GraphAdjMatrix{
                     if(newDist < distance[i]){
                         parent[i] = nodeObj.node;
                         distance[i] = newDist;
-                        pq.addItem(i, newDist);
+                        pq.addItem({node: i, cost: newDist, parent: null});
                     }
                 }
             }
@@ -701,8 +701,8 @@ class GraphAdjMatrix{
 
     
         let visited = new Array(this.adjMatrix.length).fill(false);
-        let pq = new MinPriorityQueue();
-        let startNode = 2;
+        let pq = new GeneralPriorityQueue((a,b) => a?.cost - b?.cost);
+        let startNode = 0;
 
         visited[startNode] = true;
         let edgeList = this.adjMatrix[startNode];
@@ -714,7 +714,7 @@ class GraphAdjMatrix{
         //Load Queue
         for(let n = 0; n < edgeList.length; n++){
             if(edgeList[n] != null){
-                pq.addItem(n, edgeList[n], startNode);
+                pq.addItem({node: n, cost: edgeList[n], parent: startNode});
             }
         }
 
@@ -730,7 +730,7 @@ class GraphAdjMatrix{
 
                 for(let n = 0; n < edgeList.length; n++){
                     if(edgeList[n] != null){
-                        pq.addItem(n, edgeList[n], nodeObj.node);
+                        pq.addItem({node: n, cost: edgeList[n], parent: nodeObj.node});
                     }
                 }
 
@@ -740,6 +740,116 @@ class GraphAdjMatrix{
         
         return {minSpanTree, mstCost};
     }
+
+}
+
+
+
+class GeneralPriorityQueue{
+
+    //Parent = Floor(i/2)
+    //Right Child = i * 2 + 1
+    //Left Child =  i * 2
+
+    //Note - Start Heap Array at Index 1
+    //Note - Javascript Arrays Grow Automatically If Adding to index == arr.length
+
+
+    /**
+     * 
+     * @param {*} size 
+     * @param {*} compFunction - 
+     *  If compareFunction(a, b) returns a value > than 0, sort b before a.
+        If compareFunction(a, b) returns a value ≤ 0, leave a and b in the same order
+     */
+    constructor(compFunction = (a,b) => a - b){
+        this.heap = [];
+        this.count = 0;
+        this.compFunction = compFunction;
+    }
+
+    
+    addItem(data){
+        if(this.count == 0){
+            this.heap[1] = data;
+        }else{
+            this.heap[this.count + 1] = data;
+
+            //Bubble Data Up
+            let currentIndex = this.count + 1;
+            let parentIndex = Math.floor(currentIndex/2);
+
+            while(parentIndex >= 1){
+                if(this.compFunction(this.heap[parentIndex],this.heap[currentIndex]) > 0){
+                    //Swap items
+                    let temp = this.heap[parentIndex];
+                    this.heap[parentIndex] = this.heap[currentIndex];
+                    this.heap[currentIndex] = temp;
+
+                    //Recalculate Indexes
+                    currentIndex = parentIndex;
+                    parentIndex = Math.floor(currentIndex/2);
+                }else{
+                    break;
+                }
+            }
+        }
+
+        this.count++;
+    }
+
+
+    removeMin(){
+
+        if(this.count == 0){
+            return null;
+        }
+
+        let result = this.heap[1];
+        //Move Last Item To Root
+        this.heap[1] = this.heap[this.count];
+        this.heap[this.count] = null;
+        this.count--;
+
+
+        //Bubble Root Down
+        let currentIndex = 1;
+        let leftChild = currentIndex * 2;
+        let rightChild = currentIndex * 2 + 1;
+
+        while(leftChild <= this.count || rightChild <= this.count){
+            //Change Comp below to make max heap
+            if(this.compFunction(this.heap[currentIndex], this.heap[leftChild]) > 0
+                || this.compFunction(this.heap[currentIndex] > this.heap[rightChild]) > 0){
+                //Swap items with smallest child
+                if(rightChild > this.count || this.compFunction(this.heap[leftChild], this.heap[rightChild]) < 0){
+                    let temp = this.heap[leftChild];
+                    this.heap[leftChild] = this.heap[currentIndex];
+                    this.heap[currentIndex] = temp;
+
+                    //Recalculate Indexes
+                    currentIndex = leftChild;
+                    leftChild = currentIndex * 2;
+                    rightChild = currentIndex * 2 + 1;
+
+                }else{
+                    let temp = this.heap[rightChild];
+                    this.heap[rightChild] = this.heap[currentIndex];
+                    this.heap[currentIndex] = temp;
+
+                    //Recalculate Indexes
+                    currentIndex = rightChild;
+                    leftChild = currentIndex * 2;
+                    rightChild = currentIndex * 2 + 1;
+                }
+            }else{
+                break;
+            }
+        }
+
+        return result;
+    }
+
 
 }
 
